@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Date Picker 😏</title>
+  <title>Date Planner 😏</title>
   <style>
     body {
       text-align: center;
       font-family: Arial;
-      margin-top: 100px;
+      margin-top: 80px;
       background: #ffe6e6;
     }
 
     button {
-      padding: 15px 25px;
+      padding: 12px 20px;
       margin: 10px;
-      font-size: 18px;
+      font-size: 16px;
       border-radius: 10px;
       cursor: pointer;
     }
@@ -26,39 +26,132 @@
 
 <body>
 
-  <h1>Where would you like to go on a date? 😌</h1>
+<h1 id="question">Where should we go on a date? 😌</h1>
+<div id="options"></div>
 
-  <button onclick="choose('Dinner 🍝')">Dinner 🍝</button>
-  <button onclick="choose('Coffee ☕')">Coffee ☕</button>
-  <button onclick="choose('Movie 🎬')">Movie 🎬</button>
+<script>
 
-  <br><br>
+let answers = {};
 
-  <button id="noBtn">No date ❌</button>
+function showMainOptions() {
+  document.getElementById("question").innerText = "Where should we go on a date? 😌";
+  document.getElementById("options").innerHTML = `
+    <button onclick="chooseMain('Drunk Bowling')">Drunk Bowling 🎳</button>
+    <button onclick="chooseMain('Drive')">Drive 🚗</button>
+    <button onclick="chooseMain('Restobar')">Restobar 🍸</button>
+    <br><br>
+    <button id="noBtn">No date ❌</button>
+  `;
 
-  <script>
-    function choose(option) {
-      alert("You chose: " + option + " ❤️");
+  moveNoButton();
+}
 
-      // Send response to you (using webhook)
-      fetch("https://hook.eu1.make.com/YOUR_WEBHOOK_URL", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ choice: option })
-      });
-    }
+function moveNoButton() {
+  const btn = document.getElementById("noBtn");
+  btn.addEventListener("mouseover", function () {
+    const x = Math.random() * window.innerWidth;
+    const y = Math.random() * window.innerHeight;
+    btn.style.left = x + "px";
+    btn.style.top = y + "px";
+  });
+}
 
-    const noBtn = document.getElementById("noBtn");
+function chooseMain(choice) {
+  answers.main = choice;
 
-    noBtn.addEventListener("mouseover", function () {
-      const x = Math.random() * window.innerWidth;
-      const y = Math.random() * window.innerHeight;
-      noBtn.style.left = x + "px";
-      noBtn.style.top = y + "px";
-    });
-  </script>
+  if (choice === "Drunk Bowling") {
+    showDrinkOptions();
+  } else if (choice === "Drive") {
+    showDriveOptions();
+  } else {
+    showTimeOptions();
+  }
+}
+
+function showDrinkOptions() {
+  document.getElementById("question").innerText = "Pick your drink 🍹";
+  document.getElementById("options").innerHTML = `
+    <button onclick="chooseDrink('Smirnoff Green Apple + Sprite')">Smirnoff Green Apple + Sprite 🍏</button>
+    <button onclick="chooseDrink('Coconut water + Gin')">Coconut water + Gin 🥥</button>
+  `;
+}
+
+function chooseDrink(choice) {
+  answers.drink = choice;
+  showBowlingPlace();
+}
+
+function showBowlingPlace() {
+  document.getElementById("question").innerText = "Where are we bowling? 🎳";
+  document.getElementById("options").innerHTML = `
+    <button onclick="chooseBowling('The Grid Gaming Arena')">The Grid Gaming Arena</button>
+    <button onclick="chooseBowling('Mall of Asia')">Mall of Asia</button>
+  `;
+}
+
+function chooseBowling(choice) {
+  answers.place = choice;
+  showTimeOptions();
+}
+
+function showDriveOptions() {
+  document.getElementById("question").innerText = "Where are we driving? 🚗";
+  document.getElementById("options").innerHTML = `
+    <button onclick="chooseDrive('Manchanabele')">Manchanabele 🌄</button>
+    <button onclick="chooseDrive('Rasta Cafe')">Rasta Cafe ☕</button>
+  `;
+}
+
+function chooseDrive(choice) {
+  answers.place = choice;
+  showTimeOptions();
+}
+
+function showTimeOptions() {
+  document.getElementById("question").innerText = "Pick a time ⏰";
+  document.getElementById("options").innerHTML = `
+    <button onclick="chooseTime('Sunday Night')">Sunday Night 🌙</button>
+    <button onclick="chooseTime('Monday Night')">Monday Night 🌙</button>
+  `;
+}
+
+function chooseTime(choice) {
+  answers.time = choice;
+  showFinal();
+}
+
+function showFinal() {
+  let summary = "";
+
+  if (answers.main === "Drunk Bowling") {
+    summary = `So it's ${answers.time}, we're going to ${answers.place} for drunk bowling 🎳, starting with ${answers.drink}. Good choice 😏`;
+  } 
+  else if (answers.main === "Drive") {
+    summary = `So it's ${answers.time}, we're going on a drive to ${answers.place} 🚗. Simple and perfect 😌`;
+  } 
+  else {
+    summary = `So it's ${answers.time}, we're heading to a restobar 🍸. Chill vibes only 😏`;
+  }
+
+  document.getElementById("question").innerText = "Your Date Plan 💖";
+  document.getElementById("options").innerHTML = `<h2>${summary}</h2>`;
+
+  sendData();
+}
+
+function sendData() {
+  fetch("https://webhook.site/e548793a-433f-4600-b865-71fda6b11c8c", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(answers)
+  });
+}
+
+showMainOptions();
+
+</script>
 
 </body>
 </html>
