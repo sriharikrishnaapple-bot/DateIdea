@@ -4,35 +4,96 @@
   <title>Date Planner 😏</title>
   <style>
     body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .card {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       text-align: center;
-      font-family: Arial;
-      margin-top: 80px;
-      background: #ffe6e6;
+      width: 90%;
+      max-width: 400px;
+      transition: all 0.4s ease;
+      animation: fadeIn 0.6s ease;
+    }
+
+    h1 {
+      margin-bottom: 20px;
     }
 
     button {
       padding: 12px 20px;
-      margin: 10px;
-      font-size: 16px;
-      border-radius: 10px;
+      margin: 8px;
+      font-size: 15px;
+      border-radius: 12px;
+      border: none;
       cursor: pointer;
+      background: #ff6b81;
+      color: white;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      background: #ff4757;
     }
 
     #noBtn {
       position: absolute;
+      background: #aaa;
+    }
+
+    .fade-out {
+      animation: fadeOut 0.3s forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateY(-20px); }
+    }
+
+    .final-text {
+      font-size: 18px;
+      line-height: 1.5;
+      animation: fadeIn 0.8s ease;
     }
   </style>
 </head>
 
 <body>
 
-<h1 id="question">Where should we go on a date? 😌</h1>
-<div id="options"></div>
+<div class="card" id="card">
+  <h1 id="question">Where should we go on a date? 😌</h1>
+  <div id="options"></div>
+</div>
 
 <script>
 
 let answers = {};
+const card = document.getElementById("card");
 
+function transition(next) {
+  card.classList.add("fade-out");
+  setTimeout(() => {
+    card.classList.remove("fade-out");
+    next();
+  }, 300);
+}
+
+// MAIN OPTIONS
 function showMainOptions() {
   document.getElementById("question").innerText = "Where should we go on a date? 😌";
   document.getElementById("options").innerHTML = `
@@ -42,32 +103,31 @@ function showMainOptions() {
     <br><br>
     <button id="noBtn">No date ❌</button>
   `;
-
   moveNoButton();
 }
 
+// NO BUTTON ESCAPE
 function moveNoButton() {
   const btn = document.getElementById("noBtn");
-  btn.addEventListener("mouseover", function () {
-    const x = Math.random() * window.innerWidth;
-    const y = Math.random() * window.innerHeight;
+  btn.addEventListener("mouseover", () => {
+    const x = Math.random() * (window.innerWidth - 100);
+    const y = Math.random() * (window.innerHeight - 50);
     btn.style.left = x + "px";
     btn.style.top = y + "px";
   });
 }
 
+// MAIN CHOICE
 function chooseMain(choice) {
   answers.main = choice;
-
-  if (choice === "Drunk Bowling") {
-    showDrinkOptions();
-  } else if (choice === "Drive") {
-    showDriveOptions();
-  } else {
-    showTimeOptions();
-  }
+  transition(() => {
+    if (choice === "Drunk Bowling") showDrinkOptions();
+    else if (choice === "Drive") showDriveOptions();
+    else showTimeOptions();
+  });
 }
 
+// DRINK
 function showDrinkOptions() {
   document.getElementById("question").innerText = "Pick your drink 🍹";
   document.getElementById("options").innerHTML = `
@@ -78,9 +138,10 @@ function showDrinkOptions() {
 
 function chooseDrink(choice) {
   answers.drink = choice;
-  showBowlingPlace();
+  transition(showBowlingPlace);
 }
 
+// BOWLING PLACE
 function showBowlingPlace() {
   document.getElementById("question").innerText = "Where are we bowling? 🎳";
   document.getElementById("options").innerHTML = `
@@ -91,9 +152,10 @@ function showBowlingPlace() {
 
 function chooseBowling(choice) {
   answers.place = choice;
-  showTimeOptions();
+  transition(showTimeOptions);
 }
 
+// DRIVE
 function showDriveOptions() {
   document.getElementById("question").innerText = "Where are we driving? 🚗";
   document.getElementById("options").innerHTML = `
@@ -104,9 +166,10 @@ function showDriveOptions() {
 
 function chooseDrive(choice) {
   answers.place = choice;
-  showTimeOptions();
+  transition(showTimeOptions);
 }
 
+// TIME
 function showTimeOptions() {
   document.getElementById("question").innerText = "Pick a time ⏰";
   document.getElementById("options").innerHTML = `
@@ -117,9 +180,10 @@ function showTimeOptions() {
 
 function chooseTime(choice) {
   answers.time = choice;
-  showFinal();
+  transition(showFinal);
 }
 
+// FINAL
 function showFinal() {
   let summary = "";
 
@@ -134,14 +198,16 @@ function showFinal() {
   }
 
   document.getElementById("question").innerText = "Your Date Plan 💖";
-  document.getElementById("options").innerHTML = `<h2>${summary}</h2>`;
+  document.getElementById("options").innerHTML = `<div class="final-text">${summary}</div>`;
 
   sendData();
 }
 
+// WEBHOOK (FIXED)
 function sendData() {
   fetch("https://webhook.site/e548793a-433f-4600-b865-71fda6b11c8c", {
     method: "POST",
+    mode: "no-cors",
     headers: {
       "Content-Type": "application/json"
     },
@@ -149,6 +215,7 @@ function sendData() {
   });
 }
 
+// INIT
 showMainOptions();
 
 </script>
