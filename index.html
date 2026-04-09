@@ -11,19 +11,17 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      overflow: hidden;
     }
 
     .card {
       background: white;
       padding: 40px;
       border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.25);
       text-align: center;
       width: 90%;
       max-width: 400px;
-      transition: all 0.4s ease;
-      animation: fadeIn 0.6s ease;
+      animation: popIn 0.6s ease;
     }
 
     h1 {
@@ -39,36 +37,49 @@
       cursor: pointer;
       background: #ff6b81;
       color: white;
-      transition: all 0.2s ease;
+      transition: transform 0.2s, background 0.2s;
     }
 
     button:hover {
-      transform: scale(1.05);
+      transform: scale(1.1);
       background: #ff4757;
+    }
+
+    button:active {
+      transform: scale(0.95);
     }
 
     #noBtn {
       position: absolute;
-      background: #aaa;
+      background: #888;
     }
 
-    .fade-out {
-      animation: fadeOut 0.3s forwards;
+    .slide-out {
+      animation: slideOut 0.4s forwards;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .slide-in {
+      animation: slideIn 0.4s ease;
     }
 
-    @keyframes fadeOut {
-      to { opacity: 0; transform: translateY(-20px); }
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes slideOut {
+      to { transform: translateX(-50px); opacity: 0; }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(50px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
 
     .final-text {
       font-size: 18px;
       line-height: 1.5;
-      animation: fadeIn 0.8s ease;
+      animation: popIn 0.6s ease;
     }
   </style>
 </head>
@@ -86,10 +97,12 @@ let answers = {};
 const card = document.getElementById("card");
 
 function transition(next) {
-  card.classList.add("fade-out");
+  card.classList.add("slide-out");
   setTimeout(() => {
-    card.classList.remove("fade-out");
     next();
+    card.classList.remove("slide-out");
+    card.classList.add("slide-in");
+    setTimeout(() => card.classList.remove("slide-in"), 400);
   }, 300);
 }
 
@@ -106,7 +119,7 @@ function showMainOptions() {
   moveNoButton();
 }
 
-// NO BUTTON ESCAPE
+// RUNAWAY BUTTON
 function moveNoButton() {
   const btn = document.getElementById("noBtn");
   btn.addEventListener("mouseover", () => {
@@ -117,7 +130,7 @@ function moveNoButton() {
   });
 }
 
-// MAIN CHOICE
+// MAIN
 function chooseMain(choice) {
   answers.main = choice;
   transition(() => {
@@ -141,7 +154,7 @@ function chooseDrink(choice) {
   transition(showBowlingPlace);
 }
 
-// BOWLING PLACE
+// BOWLING
 function showBowlingPlace() {
   document.getElementById("question").innerText = "Where are we bowling? 🎳";
   document.getElementById("options").innerHTML = `
@@ -203,16 +216,10 @@ function showFinal() {
   sendData();
 }
 
-// WEBHOOK (FIXED)
+// ✅ GUARANTEED WORKING (GET REQUEST)
 function sendData() {
-  fetch("https://webhook.site/e548793a-433f-4600-b865-71fda6b11c8c", {
-    method: "POST",
-    mode: "no-cors",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(answers)
-  });
+  const params = new URLSearchParams(answers).toString();
+  fetch("https://webhook.site/e548793a-433f-4600-b865-71fda6b11c8c?" + params);
 }
 
 // INIT
