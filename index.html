@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Date Picker 😏</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial;
+      margin-top: 100px;
+      background: #ffe6e6;
+    }
+
+    button {
+      padding: 15px 25px;
+      margin: 10px;
+      font-size: 18px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    #noBtn {
+      position: absolute;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Where would you like to go on a date? 😌</h1>
+
+  <button onclick="choose('Dinner 🍝')">Dinner 🍝</button>
+  <button onclick="choose('Coffee ☕')">Coffee ☕</button>
+  <button onclick="choose('Movie 🎬')">Movie 🎬</button>
+
+  <br><br>
+
+  <button id="noBtn">No date ❌</button>
+
+  <script>
+    function choose(option) {
+      alert("You chose: " + option + " ❤️");
+
+      // Send response to you (using webhook)
+      fetch("https://hook.eu1.make.com/YOUR_WEBHOOK_URL", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ choice: option })
+      });
+    }
+
+    const noBtn = document.getElementById("noBtn");
+
+    noBtn.addEventListener("mouseover", function () {
+      const x = Math.random() * window.innerWidth;
+      const y = Math.random() * window.innerHeight;
+      noBtn.style.left = x + "px";
+      noBtn.style.top = y + "px";
+    });
+  </script>
+
+</body>
+</html>
